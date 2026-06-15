@@ -1,1 +1,62 @@
+name: Compile APK (The Magic)
 
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile and Package APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Unzip Uploaded Project
+        run: |
+          echo "गिटहब पर smartautomationagent.zip फ़ाइल की खोज की जा रही है..."
+          if [ -f "smartautomationagent.zip" ]; then
+            echo "smartautomationagent.zip मिल गई! सुरक्षित अनज़िप किया जा रहा है..."
+            unzip -o smartautomationagent.zip
+            
+            # अगर अनज़िप करने पर 'smartautomationagent' नाम का सब-फ़ोल्डर बनता है, तो फाइलों को रूट पर लाएं
+            if [ -d "smartautomationagent" ]; then
+              echo "सब-फ़ोल्डर 'smartautomationagent' मिला। फाइलों को रूट पर ट्रांसफर किया जा रहा है..."
+              cp -r smartautomationagent/*.
+              rm -rf smartautomationagent
+            fi
+          elif [ -f "app.zip" ]; then
+            echo "app.zip मिल गई! इसे अनज़िप किया जा रहा है..."
+            unzip -o app.zip
+          else
+            echo "कोई ज़िप फ़ाइल नहीं मिली। मान रहे हैं कि फाइलें पहले से खुली हुई हैं।"
+          fi
+          
+          echo "अनज़िप के बाद रूट डायरेक्टरी का फ़ाइल स्ट्रक्चर:"
+          ls -la
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 🚀 फिक्स: यहाँ हमने gradle-version को 8.6 कर दिया है
+      - name: Setup Gradle 8.6 for non-wrapper project
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.6'
+
+      - name: Run Build and Assemble APK
+        run: gradle :app:assembleDebug
+
+      - name: Upload APK for Raj Bhai
+        uses: actions/upload-artifact@v4
+        with:
+          name: SmartAutomationAgent-Debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          
