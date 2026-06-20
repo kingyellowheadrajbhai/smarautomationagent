@@ -16,9 +16,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # smartautomationagent.zip फ़ाइल को सुरक्षित तरीके से अनज़िप करना
       - name: Unzip Uploaded Project
         run: |
-          echo "गिटहब पर smartautomationagent.zip फ़ाइल की खोज की जा रही है..."
+          echo "गिटहब पर smartautomationagent.zip फ़ाइल की खोज की जा रही..."
           if [ -f "smartautomationagent.zip" ]; then
             echo "smartautomationagent.zip मिल गई! सुरक्षित अनज़िप किया जा रहा है..."
             unzip -o smartautomationagent.zip
@@ -39,23 +40,27 @@ jobs:
           echo "अनज़िप के बाद रूट डायरेक्टरी का फ़ाइल स्ट्रक्चर:"
           ls -la
 
-      - name: Setup Java 17
+      # 🚀 फिक्स: यहाँ हमने Java-version को 17 से बढ़ाकर 21 कर दिया है
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
-      # 🚀 फिक्स: यहाँ हमने gradle-version को 8.6 कर दिया है
+      # Gradle 8.6 का उपयोग करना 
       - name: Setup Gradle 8.6 for non-wrapper project
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.6'
 
+      # बिना रैपर के सीधे कंपाइल करना
       - name: Run Build and Assemble APK
         run: gradle :app:assembleDebug
 
+      # अंत में उत्पन्न हुए APK को गिटहब आर्टिफैक्ट पर अपलोड करना
       - name: Upload APK for Raj Bhai
         uses: actions/upload-artifact@v4
         with:
           name: SmartAutomationAgent-Debug
           path: app/build/outputs/apk/debug/app-debug.apk
+          
