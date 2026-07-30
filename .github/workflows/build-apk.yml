@@ -1,4 +1,4 @@
-Name: Compile APK (The Magic)
+name: Compile APK (The Magic)
 
 on:
   push:
@@ -61,4 +61,3 @@ jobs:
         with:
           name: SmartAutomationAgent-Debug
           path: app/build/outputs/apk/debug/app-debug.apk
-          
